@@ -241,25 +241,17 @@ class QDMGraphicsNode(QGraphicsItem):
             return True
         elif event.modifiers() == Qt.ShiftModifier:
             if self.rotate_item.isVisible() or self.scale_item.isVisible() or self.resize_item.isVisible():
-                self.rotate_item.hide()
-                self.scale_item.hide()
-                self.resize_item.hide()
+                self.showScaleRotResize(False, toAllSelected=True)
             else:
-                self.rotate_item.show()
-                self.scale_item.show()
-                self.resize_item.show()
+                self.showScaleRotResize(True, toAllSelected=True)
             return True
         elif event.modifiers() == (Qt.ControlModifier | Qt.ShiftModifier):
             if self.rotate_item.isVisible() or self.scale_item.isVisible() or \
                     self.resize_item.isVisible() or self.hide_item.isVisible():
-                self.rotate_item.hide()
-                self.scale_item.hide()
-                self.resize_item.hide()
+                self.showScaleRotResize(False, toAllSelected=True)
                 self.hide_item.hide()
             else:
-                self.rotate_item.show()
-                self.scale_item.show()
-                self.resize_item.show()
+                self.showScaleRotResize(True, toAllSelected=True)
                 self.hide_item.show()
             return True
         return False
