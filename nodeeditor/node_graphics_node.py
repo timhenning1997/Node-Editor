@@ -205,17 +205,45 @@ class QDMGraphicsNode(QGraphicsItem):
         if new_state: self.onSelected()
 
     def sceneEvent(self, event):
-        if event.type() == QEvent.GraphicsSceneContextMenu and event.modifiers() == Qt.ControlModifier:
-                if self.hide_item.isVisible():
-                    self.hide_item.hide()
-                else:
-                    self.hide_item.show()
-                return False
+        if event.type() == QEvent.GraphicsSceneContextMenu and self.checkEventModifiersToSetIconVisibility(event):
+            return False
                 
         if event.type() == QEvent.GraphicsSceneContextMenu and self.contextMenuInteractable:
             super().sceneEvent(event)
             return False
         return super().sceneEvent(event)
+
+    def checkEventModifiersToSetIconVisibility(self, event):
+        if event.modifiers() == Qt.ControlModifier:
+            if self.hide_item.isVisible():
+                self.hide_item.hide()
+            else:
+                self.hide_item.show()
+            return True
+        elif event.modifiers() == Qt.ShiftModifier:
+            if self.rotate_item.isVisible() or self.scale_item.isVisible() or self.resize_item.isVisible():
+                self.rotate_item.hide()
+                self.scale_item.hide()
+                self.resize_item.hide()
+            else:
+                self.rotate_item.show()
+                self.scale_item.show()
+                self.resize_item.show()
+            return True
+        elif event.modifiers() == (Qt.ControlModifier | Qt.ShiftModifier):
+            if self.rotate_item.isVisible() or self.scale_item.isVisible() or \
+                    self.resize_item.isVisible() or self.hide_item.isVisible():
+                self.rotate_item.hide()
+                self.scale_item.hide()
+                self.resize_item.hide()
+                self.hide_item.hide()
+            else:
+                self.rotate_item.show()
+                self.scale_item.show()
+                self.resize_item.show()
+                self.hide_item.show()
+            return True
+        return False
 
     def mouseMoveEvent(self, event):
         """Overridden event to detect that we moved with this `Node`"""
@@ -751,6 +779,9 @@ class TextItem(QGraphicsTextItem):
         return context_menu
 
     def contextMenuEvent(self, event):
+        if self.grNode.checkEventModifiersToSetIconVisibility(event):
+            return
+
         if self.grNode.node.locked:
             return
 
