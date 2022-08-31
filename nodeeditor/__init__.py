@@ -2,4 +2,4 @@
 
 __name__ = 'NodeEditor'
 __author__ = 'Tim Henning'
-__version__ = '0.9.13'
+__version__ = '1.0.0'
