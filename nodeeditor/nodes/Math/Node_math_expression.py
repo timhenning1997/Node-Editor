@@ -1,3 +1,4 @@
+from collections import OrderedDict
 from io import StringIO
 from contextlib import redirect_stdout
 
@@ -20,7 +21,7 @@ class Content(QDMNodeContentWidget):
         self.evalLineEdit.setObjectName("evalLineEditObj")
         self.evalLineEdit.setStyleSheet("#evalLineEditObj {background-color: #111111; color: #eeeeee}")
         # self.evalLineEdit.setTabStopDistance(20)
-        self.evalLineEdit.setText("x^2")
+        self.evalLineEdit.setText("x**2")
 
         label = QLabel("y(x)=")
 
@@ -36,7 +37,7 @@ class Content(QDMNodeContentWidget):
     def sendData(self, data):
         self.node.sendDataFromSocket(data)
 
-    def evaluateScript(self, obj = None):
+    def evaluateScript(self, obj=None):
         if self.node.inputValues[0] is None:
             return
         
@@ -44,9 +45,19 @@ class Content(QDMNodeContentWidget):
         text = self.evalLineEdit.text()
         try:
             self.sendData(eval(text))
-        except Exception as inst:
-            print("ERROR_____________________________")
-            print(inst)
+        except Exception as e:
+            self.node.grNode.setToolTip(str(e))
+            self.node.grNode.errorAnimation.startAnimation()
+
+    def serialize(self) -> OrderedDict:
+        orderedDict = super().serialize()
+        orderedDict["last_input"] = self.node.inputValues[0]
+        return orderedDict
+
+    def deserialize(self, data: dict, hashmap: dict = {}, restore_id: bool = True) -> bool:
+        super().deserialize(data, hashmap, restore_id)
+        self.node.inputValues[0] = data["last_input"]
+        return True
 
 
 class GraphicsNode(QDMGraphicsNode):

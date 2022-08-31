@@ -44,6 +44,7 @@ class QDMGraphicsNode(QGraphicsItem):
 
         self.showEvaluatedAnimation = True
         self._draw_evaluated_outline = False
+        self._draw_error_evaluated_outline = False
         self.drawHovered = True
 
         self.drawBackground = True
@@ -57,6 +58,10 @@ class QDMGraphicsNode(QGraphicsItem):
         self.animation = PropertyAnimator(startValue=0, endValue=1, duration=200, interval=50)
         self.animation.update.connect(self.updateEvaluatedAnimation)
         self.animation.stop.connect(self.stopEvaluatedAnimation)
+
+        self.errorAnimation = PropertyAnimator(startValue=0, endValue=1, duration=500, interval=50)
+        self.errorAnimation.update.connect(self.updateErrorEvaluatedAnimation)
+        self.errorAnimation.stop.connect(self.stopErrorEvaluatedAnimation)
 
         self.initSizes()
         self.initAssets()
@@ -77,6 +82,17 @@ class QDMGraphicsNode(QGraphicsItem):
     def stopEvaluatedAnimation(self):
         self._draw_evaluated_outline = False
         self._color_evaluated.setAlphaF(1)
+
+    def updateErrorEvaluatedAnimation(self, value):
+        self._pen_error_evaluated.setWidthF((1-value) * 2)
+        self._color_error_evaluated.setAlphaF((1-value))
+        self._pen_error_evaluated.setColor(self._color_error_evaluated)
+        self._draw_error_evaluated_outline = True
+        self.update()
+
+    def stopErrorEvaluatedAnimation(self):
+        self._draw_error_evaluated_outline = False
+        self._color_error_evaluated.setAlphaF(1)
 
     @property
     def content(self):
@@ -156,6 +172,7 @@ class QDMGraphicsNode(QGraphicsItem):
         self._color_selected = QColor("#FFFFA637")
         self._color_hovered = QColor("#FF37A6FF")
         self._color_evaluated = EVAL_HIGHLIGHT_COLOR
+        self._color_error_evaluated = QColor("#FFFF0000")
 
         self._pen_default = QPen(self._color)
         self._pen_default.setWidthF(2.0)
@@ -165,6 +182,8 @@ class QDMGraphicsNode(QGraphicsItem):
         self._pen_hovered.setWidthF(3.0)
         self._pen_evaluated = QPen(self._color_evaluated)
         self._pen_evaluated.setWidthF(5.0)
+        self._pen_error_evaluated = QPen(self._color_error_evaluated)
+        self._pen_error_evaluated.setWidthF(5.0)
 
         self._brush_title = QBrush(QColor("#FF313131"))
         self._brush_background = QBrush(QColor("#E3212121"))
@@ -573,6 +592,9 @@ class QDMGraphicsNode(QGraphicsItem):
             painter.drawPath(path_outline.simplified())
         if self.showEvaluatedAnimation and self._draw_evaluated_outline:
             painter.setPen(self._pen_evaluated)
+            painter.drawPath(path_outline.simplified())
+        if self._draw_error_evaluated_outline:
+            painter.setPen(self._pen_error_evaluated)
             painter.drawPath(path_outline.simplified())
 
         if self.evaluationIconVisibility and self.drawEvaluationIcon:
