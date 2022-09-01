@@ -235,9 +235,9 @@ class QDMGraphicsNode(QGraphicsItem):
     def checkEventModifiersToSetIconVisibility(self, event):
         if event.modifiers() == Qt.ControlModifier:
             if self.hide_item.isVisible():
-                self.hide_item.hide()
+                self.showHideIcon(False, True)
             else:
-                self.hide_item.show()
+                self.showHideIcon(True, True)
             return True
         elif event.modifiers() == Qt.ShiftModifier:
             if self.rotate_item.isVisible() or self.scale_item.isVisible() or self.resize_item.isVisible():
@@ -249,10 +249,10 @@ class QDMGraphicsNode(QGraphicsItem):
             if self.rotate_item.isVisible() or self.scale_item.isVisible() or \
                     self.resize_item.isVisible() or self.hide_item.isVisible():
                 self.showScaleRotResize(False, toAllSelected=True)
-                self.hide_item.hide()
+                self.showHideIcon(False, True)
             else:
                 self.showScaleRotResize(True, toAllSelected=True)
-                self.hide_item.show()
+                self.showHideIcon(True, True)
             return True
         return False
 
@@ -460,6 +460,16 @@ class QDMGraphicsNode(QGraphicsItem):
         super().setRotation(angle)
         self.updateSocketsAndEdgesPositions()
 
+    def showHideIcon(self, value: bool = True, toAllSelected: bool = False):
+        if toAllSelected:
+            if self.node.scene.grScene.selectedItems() != []:
+                for item in self.node.scene.grScene.selectedItems():
+                    if isinstance(item, QDMGraphicsNode):
+                        item.showHideIcon(value)
+        if value:
+            self.hide_item.show()
+        else:
+            self.hide_item.hide()
     def showScaleRotResize(self, value: bool = True, type: str = "ALL", toAllSelected: bool = False):
         if toAllSelected:
             if self.node.scene.grScene.selectedItems() != []:

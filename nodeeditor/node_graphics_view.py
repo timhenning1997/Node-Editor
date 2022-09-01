@@ -2,9 +2,10 @@
 """
 A module containing `Graphics View` for NodeEditor
 """
-from PyQt5.QtWidgets import QGraphicsView, QApplication
+from PyQt5.QtWidgets import QGraphicsView, QApplication, QGraphicsItem
 from PyQt5.QtCore import pyqtSignal, QPoint, Qt, QEvent, QPointF, QRectF
 from PyQt5.QtGui import QPainter, QDragEnterEvent, QDropEvent, QMouseEvent, QKeyEvent, QWheelEvent
+from nodeeditor.node_graphics_node import QDMGraphicsNode
 
 from nodeeditor.node_graphics_socket import QDMGraphicsSocket
 from nodeeditor.node_graphics_edge import QDMGraphicsEdge
@@ -225,7 +226,6 @@ class QDMGraphicsView(QGraphicsView):
                                 Qt.LeftButton, event.buttons() & ~Qt.LeftButton, event.modifiers())
         super().mouseReleaseEvent(fakeEvent)
         self.setDragMode(QGraphicsView.RubberBandDrag)
-
 
     def leftMouseButtonPress(self, event: QMouseEvent):
         """When Left  mouse button was pressed"""
