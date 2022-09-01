@@ -34,7 +34,7 @@ class Content(QDMNodeContentWidget):
         self.setLayout(layout)
 
     def sendData(self):
-        if self.minSpinBox.value() < self.maxSpinBox.value():
+        if self.minSpinBox.value() <= self.maxSpinBox.value():
             data = random() * (self.maxSpinBox.value() - self.minSpinBox.value()) + self.minSpinBox.value()
             self.outputLabel.setText("%.2f" % (data))
             self.node.sendDataFromSocket(data)
