@@ -56,6 +56,7 @@ class GraphicsNode(QDMGraphicsNode):
         self.setShowAndHiddenSameSize = True
 
 
+
 class Node_MathInputRandomFloat(Abstract_Node):
     def __init__(self, scene: 'Scene', title: str = "Random Float", inputs: list = [VAR_TYPE_NOT_DEFINED], outputs: list = [VAR_TYPE_FLOAT]):
         super().__init__(scene, title, inputs, outputs)
