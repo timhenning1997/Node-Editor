@@ -30,7 +30,7 @@ class GraphicsNode(QDMGraphicsNode):
 
 
 class Node_TextLineInputNode(Abstract_Node):
-    def __init__(self, scene: 'Scene', title: str = "Text Line Input", inputs: list = [], outputs: list = [VAR_TYPE_STR]):
+    def __init__(self, scene: 'Scene', title: str = "Text Line Input", inputs: list = [VAR_TYPE_NOT_DEFINED], outputs: list = [VAR_TYPE_STR]):
         super().__init__(scene, title, inputs, outputs)
 
     def initInnerClasses(self):
@@ -39,4 +39,10 @@ class Node_TextLineInputNode(Abstract_Node):
 
     def initSettings(self):
         super().initSettings()
+        self.input_socket_position = LEFT_CENTER
         self.output_socket_position = RIGHT_CENTER
+
+    def receiveData(self, data, inputSocketIndex):
+        super().receiveData(data, inputSocketIndex)
+
+        self.content.sendData()

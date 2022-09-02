@@ -1,7 +1,7 @@
 import os, sys, inspect
 from PyQt5.QtWidgets import QApplication
 
-sys.path.insert(0, os.path.join( os.path.dirname(__file__), ".." ))
+sys.path.insert(0, os.path.join(os.path.dirname(__file__), ".."))
 
 from nodeeditor.utils import loadStylesheet
 from nodeeditor.node_editor_window import NodeEditorWindow

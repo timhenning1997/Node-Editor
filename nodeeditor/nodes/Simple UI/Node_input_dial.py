@@ -9,6 +9,7 @@ class Content(QDMNodeContentWidget):
     def initUI(self):
         self.dial = QDial()
         self.dial.valueChanged.connect(self.sendData)
+        self.dial.setNotchesVisible(True)
         layout = QHBoxLayout()
         layout.setContentsMargins(0, 0, 0, 0)
         layout.addWidget(self.dial)
@@ -35,7 +36,7 @@ class GraphicsNode(QDMGraphicsNode):
 
 
 class Node_DialInputNode(Abstract_Node):
-    def __init__(self, scene: 'Scene', title: str = "Dial Input", inputs: list = [], outputs: list = [VAR_TYPE_INT]):
+    def __init__(self, scene: 'Scene', title: str = "Dial Input", inputs: list = [VAR_TYPE_NOT_DEFINED], outputs: list = [VAR_TYPE_INT]):
         super().__init__(scene, title, inputs, outputs)
 
     def initInnerClasses(self):
@@ -44,4 +45,10 @@ class Node_DialInputNode(Abstract_Node):
 
     def initSettings(self):
         super().initSettings()
+        self.input_socket_position = LEFT_CENTER
         self.output_socket_position = RIGHT_CENTER
+
+    def receiveData(self, data, inputSocketIndex):
+        super().receiveData(data, inputSocketIndex)
+
+        self.content.sendData()

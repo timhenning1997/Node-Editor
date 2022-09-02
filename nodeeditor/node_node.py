@@ -627,7 +627,8 @@ class Node(Serializable):
 
     def receiveData(self, data, inputSocketIndex):
         self.inputValues[inputSocketIndex] = data
-        self.grNode.animation.startAnimation()
+        if self.grNode.showEvaluatedAnimation:
+            self.grNode.animation.startAnimation()
 
 
     # serialization functions
