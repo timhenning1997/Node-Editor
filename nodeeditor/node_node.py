@@ -211,7 +211,7 @@ class Node(Serializable):
         :type socket: :class:`~nodeeditor.node_socket.Socket`
         """
         self.markDirty()
-        self.markDescendantsDirty()
+        #self.markDescendantsDirty()
 
     def onOutputChanged(self, socket: 'Socket'):
         """Event handling when Node's output Edge has changed. We auto-mark this `Node` to be `Dirty` with all it's
