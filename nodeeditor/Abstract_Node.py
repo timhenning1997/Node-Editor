@@ -1,6 +1,4 @@
 from nodeeditor.node_node import Node
-from nodeeditor.utils_no_qt import dumpException
-from nodeeditor.var_type_conf import RIGHT_TOP, LEFT_TOP
 
 
 class Abstract_Node(Node):
@@ -10,5 +8,6 @@ class Abstract_Node(Node):
     def initSettings(self):
         super().initSettings()
         self.grNode.drawEvaluationIcon = False
-        self.input_socket_position = LEFT_TOP
-        self.output_socket_position = RIGHT_TOP
+        if self.content:
+            self.input_socket_position = self.content.socketInputPosition
+            self.output_socket_position = self.content.socketOutputPosition

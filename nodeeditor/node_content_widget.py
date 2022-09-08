@@ -8,9 +8,10 @@ from PyQt5.QtGui import QColor
 
 from nodeeditor.node_serializable import Serializable
 from PyQt5.QtWidgets import QWidget, QLabel, QVBoxLayout, QTextEdit, QDoubleSpinBox, QSpinBox, QLineEdit, QCheckBox, \
-    QRadioButton, QDial, QSlider
+    QRadioButton, QDial, QSlider, QLayout, QHBoxLayout, QAbstractSpinBox
 
 from nodeeditor.utils_no_qt import dumpException
+from nodeeditor.var_type_conf import *
 
 
 class QDMNodeContentWidget(QWidget, Serializable):
@@ -30,16 +31,46 @@ class QDMNodeContentWidget(QWidget, Serializable):
         self.node = node
         super().__init__(parent)
 
+        self.socketInputPosition = LEFT_CENTER
+        self.socketOutputPosition = RIGHT_CENTER
+
         self.setMinimumSize(1, 1)
 
+        self.initLayouts()
         self.initUI()
+        self.addStretchToLayouts()
+
+    def initLayouts(self):
+        self.inputLayout = QVBoxLayout()
+        self.inputLayout.setContentsMargins(0, 0, 0, 0)
+        self.inputLayout.addSpacing(1)
+        self.mainLayout = QVBoxLayout()
+        self.mainLayout.setContentsMargins(0, 0, 0, 0)
+        self.outputLayout = QVBoxLayout()
+        self.outputLayout.setContentsMargins(0, 0, 0, 0)
+        self.outputLayout.addSpacing(1)
 
     def initUI(self):
         """Sets up layouts and widgets to be rendered in :py:class:`~nodeeditor.node_graphics_node.QDMGraphicsNode` class.
         """
-        self.layout = QVBoxLayout()
-        self.layout.setContentsMargins(0,0,0,0)
-        self.setLayout(self.layout)
+        pass
+
+    def addStretchToLayouts(self):
+        if self.layout() is None:
+            if self.socketInputPosition == LEFT_TOP:
+                self.inputLayout.addStretch()
+            if self.socketOutputPosition == RIGHT_TOP:
+                self.outputLayout.addStretch()
+
+            layout = QHBoxLayout()
+            layout.setContentsMargins(0, 0, 0, 0)
+            layout.addLayout(self.inputLayout)
+            layout.addLayout(self.mainLayout)
+            layout.addLayout(self.outputLayout)
+            self.setLayout(layout)
+            self.totalMinimumWidth = self.layout().totalMinimumSize().width()
+            self.totalMinimumHeight = self.layout().totalMinimumSize().height()
+
 
     def setEditingFlag(self, value:bool):
         """
@@ -75,6 +106,65 @@ class QDMNodeContentWidget(QWidget, Serializable):
     def editNode(self):
         pass
 
+    def addInputLayout(self, layout: QLayout = None) -> QLayout:
+        self.inputLayout.addLayout(layout)
+        self.socketInputPosition = LEFT_TOP
+        return layout
+
+    def addInputWidget(self, widget: QWidget = None) -> QWidget:
+        widget.setFixedHeight(16)
+        self.inputLayout.addWidget(widget)
+        self.socketInputPosition = LEFT_TOP
+        return widget
+
+    def addInputLabel(self, text: str = "") -> QLabel:
+        return self.addInputWidget(QLabel(text))
+
+    def addInputLineEdit(self, text: str = "") -> QLineEdit:
+        return self.addInputWidget(QLineEdit(text))
+
+    def addInputSpinBox(self, value: int = 0, minValue: int = 0, maxValue: int = 99) -> QSpinBox:
+        widget = QSpinBox()
+        widget.setRange(minValue, maxValue)
+        widget.setValue(value)
+        widget.setButtonSymbols(QAbstractSpinBox.NoButtons)
+        return self.addInputWidget(widget)
+
+    def addInputDoubleSpinBox(self, value: float = 0, minValue: float = 0, maxValue: float = 99, decimals: int = 2) -> QDoubleSpinBox:
+        widget = QDoubleSpinBox()
+        widget.setRange(minValue, maxValue)
+        widget.setValue(value)
+        widget.setDecimals(decimals)
+        widget.setButtonSymbols(QAbstractSpinBox.NoButtons)
+        return self.addInputWidget(widget)
+
+    def addInputCheckBox(self, text: str = "", checked: bool = False) -> QCheckBox:
+        widget = QCheckBox(text)
+        widget.setChecked(checked)
+        return self.addInputWidget(widget)
+
+    def addMainLayout(self, layout: QLayout = None) -> QLayout:
+        self.mainLayout.addLayout(layout)
+        return layout
+
+    def addMainWidget(self, widget: QWidget = None) -> QWidget:
+        self.mainLayout.addWidget(widget)
+        return widget
+
+    def addOutputLayout(self, layout: QLayout = None) -> QLayout:
+        self.outputLayout.addLayout(layout)
+        self.socketOutputPosition = LEFT_TOP
+        return layout
+
+    def addOutputWidget(self, widget: QWidget = None) -> QWidget:
+        widget.setFixedHeight(16)
+        if hasattr(widget, "alignment"):
+            widget.setAlignment(Qt.AlignVCenter | Qt.AlignRight)
+
+        self.outputLayout.addWidget(widget)
+        self.socketOutputPosition = RIGHT_TOP
+        return widget
+
     def saveLayout(self, layout):
         if not layout:
             return None
@@ -82,7 +172,8 @@ class QDMNodeContentWidget(QWidget, Serializable):
         for layoutItemCount in range(0, layout.count()):
             layoutItem = layout.itemAt(layoutItemCount)
             if layoutItem == layoutItem.layout():
-                contentParts += self.saveLayout(layoutItem.layout())
+                if layoutItem.count() > 0:
+                    contentParts += self.saveLayout(layoutItem.layout())
             else:
                 tempContentPart = self.saveContentPartWidget(layoutItem.widget())
                 if tempContentPart:

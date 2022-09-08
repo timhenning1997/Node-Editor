@@ -149,8 +149,8 @@ class QDMGraphicsNode(QGraphicsItem):
         self.hidden_width = 180
         self.hidden_height = 240
         self.hidden_edge_roundness = 10.0
-        self.hidden_edge_padding = 10.0
-        self.hidden_title_height = 24.0
+        self.hidden_edge_padding = 5.0
+        self.hidden_title_height = 0.0
         self.hidden_title_horizontal_padding = 4.0
         self.hidden_title_vertical_padding = 4.0
 

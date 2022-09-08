@@ -30,14 +30,14 @@ TYPE_COLORS = [
 
 TYPE_NAMES = [
                 "NOT_USED",
-                "VAR_TYPE_NOT_DEFINED",
-                "VAR_TYPE_INT",
-                "VAR_TYPE_FLOAT",
-                "VAR_TYPE_STR",
-                "VAR_TYPE_LIST",
-                "VAR_TYPE_DICT",
-                "VAR_TYPE_PIXMAP",
-                "VAR_TYPE_BOOL",
+                "NOT_DEFINED",
+                "INT",
+                "FLOAT",
+                "STR",
+                "LIST",
+                "DICT",
+                "PIXMAP",
+                "BOOL",
                 ]
 
 EDGE_COLOR = QColor("#101010")

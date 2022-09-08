@@ -1,7 +1,4 @@
-from random import randint, random
-
-from PyQt5.QtCore import Qt
-from PyQt5.QtWidgets import QLabel, QDoubleSpinBox, QGridLayout, QVBoxLayout
+from PyQt5.QtWidgets import QLabel, QDoubleSpinBox, QGridLayout, QVBoxLayout, QLineEdit, QTextEdit, QWidget
 
 from nodeeditor.Abstract_Node import Abstract_Node
 from nodeeditor.node_content_widget import QDMNodeContentWidget
@@ -11,29 +8,12 @@ from nodeeditor.var_type_conf import *
 
 class Content(QDMNodeContentWidget):
     def initUI(self):
-        inputLabel1 = QLabel("Input 1")
-        inputLabel2 = QLabel("Input 2")
-        inputLabel3 = QLabel("Input 3")
-        inputLabel4 = QLabel("Input 4")
+        self.label = self.addInputCheckBox("Test", True)
 
-        outputLabel1 = QLabel("Output 1")
-        outputLabel1.setAlignment(Qt.AlignRight)
-        outputLabel2 = QLabel("Output 2")
-        outputLabel2.setAlignment(Qt.AlignRight)
-        outputLabel3 = QLabel("Output 3")
-        outputLabel3.setAlignment(Qt.AlignRight)
-        outputLabel4 = QLabel("Output 4")
-        outputLabel4.setAlignment(Qt.AlignRight)
+        self.addOutputWidget(QLabel("OUT 1"))
 
-        inputLayout = QVBoxLayout()
-        # inputLayout.setSizeConstraint()
-        inputLayout.setContentsMargins(0, 0, 0, 0)
-        inputLayout.addWidget(inputLabel1)
-        inputLayout.addWidget(inputLabel2)
-        inputLayout.addWidget(inputLabel3)
-        inputLayout.addWidget(inputLabel4)
+        self.addMainWidget(QLineEdit("Hallo Welt!"))
 
-        self.setLayout(inputLayout)
 
     def sendData(self):
         self.node.sendDataFromSocket("DATA")
@@ -42,28 +22,17 @@ class Content(QDMNodeContentWidget):
 class GraphicsNode(QDMGraphicsNode):
     def initSizes(self):
         super().initSizes()
-        self.setShownSize(190, 194)
-        self.setHiddenSize(190, 160)
-        self.setClosedSize(30, 30)
-
-        self.hidden_edge_padding = 5
-        self.hidden_title_height = 0
-
-        self.setShowAndHiddenSameSize = True
+        self.setShownSize(120, 83)   # 1IN =61  2In =83  3IN =105  4IN =127  5IN =149  6IN =171  7IN =193  8IN =215
+        self.setHiddenSize(120, 49)  # 1OUT=27  2OUT=49  3OUT=71   4OUT=93   5OUT=115  6OUT=137  7OUT=159  8OUT=181
 
 
 class Node_TestMultipleInAndOutputs(Abstract_Node):
-    def __init__(self, scene: 'Scene', title: str = "Test In/Outputs", inputs: list = [VAR_TYPE_NOT_DEFINED, VAR_TYPE_NOT_DEFINED, VAR_TYPE_NOT_DEFINED], outputs: list = [VAR_TYPE_NOT_DEFINED, VAR_TYPE_NOT_DEFINED, VAR_TYPE_NOT_DEFINED, VAR_TYPE_NOT_DEFINED]):
+    def __init__(self, scene: 'Scene', title: str = "Test In/Outputs", inputs: list = [VAR_TYPE_NOT_DEFINED], outputs: list = [VAR_TYPE_NOT_DEFINED, VAR_TYPE_NOT_DEFINED, VAR_TYPE_NOT_DEFINED, VAR_TYPE_NOT_DEFINED, VAR_TYPE_NOT_DEFINED, VAR_TYPE_NOT_DEFINED, VAR_TYPE_NOT_DEFINED, VAR_TYPE_NOT_DEFINED]):
         super().__init__(scene, title, inputs, outputs)
 
     def initInnerClasses(self):
         self.content = Content(self)
         self.grNode = GraphicsNode(self)
-
-    def initSettings(self):
-        super().initSettings()
-        self.output_socket_position = RIGHT_TOP
-        self.input_socket_position = LEFT_TOP
 
     def receiveData(self, data, inputSocketIndex):
         super().receiveData(data, inputSocketIndex)

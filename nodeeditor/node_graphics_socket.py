@@ -7,6 +7,7 @@ from PyQt5.QtGui import QColor, QBrush, QPen
 from PyQt5.QtCore import Qt, QRectF
 
 from nodeeditor.utils_no_qt import dumpException
+from nodeeditor.var_type_conf import TYPE_NAMES
 
 class QDMGraphicsSocket(QGraphicsItem):
     """Class representing Graphic `Socket` in ``QGraphicsScene``"""
@@ -29,9 +30,19 @@ class QDMGraphicsSocket(QGraphicsItem):
         self.hiddenStatus = False
         self.hiddenRadius = 3.0
 
+        self.setToolTipText()
+
     @property
     def socket_type(self):
         return self.socket.socket_type
+
+    def setToolTipText(self):
+        toolTipText = ""
+        for supportedType in self.socket.supportedTypes:
+            if toolTipText != "":
+                toolTipText += " / "
+            toolTipText += TYPE_NAMES[supportedType]
+        self.setToolTip(toolTipText)
 
     def getSocketColor(self, key):
         """Returns the ``QColor`` for this ``key``"""

@@ -56,5 +56,9 @@ class Node_MathDivideNode(Abstract_Node):
         if self.inputValues[1] is not None:
             self.content.input2Label.setText(str(self.inputValues[1]))
 
-        if self.inputValues[0] is not None and self.inputValues[1] is not None and self.inputValues[1] != 0:
-            self.sendDataFromSocket(self.inputValues[0] / self.inputValues[1])
+        if self.inputValues[0] is not None and self.inputValues[1] is not None:
+            if self.inputValues[1] != 0:
+                self.sendDataFromSocket(self.inputValues[0] / self.inputValues[1])
+            else:
+                self.grNode.setToolTip("Division by 0")
+                self.grNode.errorAnimation.startAnimation()

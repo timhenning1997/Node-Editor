@@ -26,7 +26,7 @@ class AppearanceColorWindow(QMainWindow):
 
         for i in range(len(socket_colors)):
             self.socketColorButtons.append(ColorButton(socket_colors[i]))
-            socketColorLayout.addRow(QLabel(TYPE_NAMES[i]), self.socketColorButtons[i])
+            socketColorLayout.addRow(QLabel("VAR_TYPE_" + TYPE_NAMES[i]), self.socketColorButtons[i])
 
         socketColorGroupbox = QGroupBox("Socket colors")
         socketColorGroupbox.setObjectName("socketColorGroupbox")
