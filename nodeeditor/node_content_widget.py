@@ -120,27 +120,32 @@ class QDMNodeContentWidget(QWidget, Serializable):
     def addInputLabel(self, text: str = "") -> QLabel:
         return self.addInputWidget(QLabel(text))
 
-    def addInputLineEdit(self, text: str = "") -> QLineEdit:
-        return self.addInputWidget(QLineEdit(text))
+    def addInputLineEdit(self, text: str = "", readOnly: bool = False) -> QLineEdit:
+        widget = QLineEdit(text)
+        widget.setReadOnly(readOnly)
+        return self.addInputWidget(widget)
 
-    def addInputSpinBox(self, value: int = 0, minValue: int = 0, maxValue: int = 99) -> QSpinBox:
+    def addInputSpinBox(self, value: int = 0, minValue: int = 0, maxValue: int = 99, readOnly: bool = False) -> QSpinBox:
         widget = QSpinBox()
         widget.setRange(minValue, maxValue)
         widget.setValue(value)
         widget.setButtonSymbols(QAbstractSpinBox.NoButtons)
+        widget.setReadOnly(readOnly)
         return self.addInputWidget(widget)
 
-    def addInputDoubleSpinBox(self, value: float = 0, minValue: float = 0, maxValue: float = 99, decimals: int = 2) -> QDoubleSpinBox:
+    def addInputDoubleSpinBox(self, value: float = 0, minValue: float = 0, maxValue: float = 99, decimals: int = 2, readOnly: bool = False) -> QDoubleSpinBox:
         widget = QDoubleSpinBox()
         widget.setRange(minValue, maxValue)
         widget.setValue(value)
         widget.setDecimals(decimals)
         widget.setButtonSymbols(QAbstractSpinBox.NoButtons)
+        widget.setReadOnly(readOnly)
         return self.addInputWidget(widget)
 
-    def addInputCheckBox(self, text: str = "", checked: bool = False) -> QCheckBox:
+    def addInputCheckBox(self, text: str = "", checked: bool = False, checkable: bool = True) -> QCheckBox:
         widget = QCheckBox(text)
         widget.setChecked(checked)
+        widget.setEnabled(checkable)
         return self.addInputWidget(widget)
 
     def addMainLayout(self, layout: QLayout = None) -> QLayout:

@@ -8,8 +8,7 @@ from nodeeditor.var_type_conf import *
 
 class Content(QDMNodeContentWidget):
     def initUI(self):
-        self.label = self.addInputCheckBox("Test", True)
-
+        self.label = self.addInputCheckBox("INPUT", True, False)
         self.addOutputWidget(QLabel("OUT 1"))
 
         self.addMainWidget(QLineEdit("Hallo Welt!"))
