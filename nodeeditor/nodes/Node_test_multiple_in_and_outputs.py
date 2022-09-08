@@ -26,7 +26,7 @@ class Content(QDMNodeContentWidget):
         outputLabel4.setAlignment(Qt.AlignRight)
 
         inputLayout = QVBoxLayout()
-        inputLayout.setSizeConstraint()
+        # inputLayout.setSizeConstraint()
         inputLayout.setContentsMargins(0, 0, 0, 0)
         inputLayout.addWidget(inputLabel1)
         inputLayout.addWidget(inputLabel2)
