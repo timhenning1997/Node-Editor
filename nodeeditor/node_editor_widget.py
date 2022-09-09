@@ -7,6 +7,7 @@ import os
 import pyclbr
 import re
 import sys
+import pip
 from os import listdir
 from os.path import isfile, join, abspath
 

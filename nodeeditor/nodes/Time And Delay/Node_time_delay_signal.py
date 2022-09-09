@@ -15,7 +15,6 @@ class Content(QDMNodeContentWidget):
         self.spinBox.setRange(1, 2147483640)
         self.spinBox.setValue(500)
         self.spinBox.setSuffix(" ms")
-        self.spinBox.valueChanged.connect(self.sendData)
         self.spinBox.setButtonSymbols(QAbstractSpinBox.NoButtons)
         layout = QHBoxLayout()
         layout.setContentsMargins(0, 0, 0, 0)

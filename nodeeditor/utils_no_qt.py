@@ -40,4 +40,5 @@ def clamp(n, smallest, largest):
 
 
 pp = PrettyPrinter(indent=4).pprint
+installed_packages = sys.modules.keys()
 
