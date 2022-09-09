@@ -130,7 +130,7 @@ class Node(Serializable):
 
     def initSettings(self):
         """Initialize properties and socket information"""
-        self._socket_spacing = 22
+        self._socket_spacing = 26
         self._socket_y_offset = 6
         self.socket_spacing = self._socket_spacing
         self.socket_y_offset = self._socket_y_offset

@@ -8,10 +8,13 @@ from nodeeditor.var_type_conf import *
 
 class Content(QDMNodeContentWidget):
     def initUI(self):
-        self.label = self.addInputCheckBox("INPUT", True, False)
-        self.addOutputWidget(QLabel("OUT 1"))
 
-        self.addMainWidget(QLineEdit("Hallo Welt!"))
+        self.spinBox1 = self.addInputDoubleSpinBox()
+        self.spinBox2 = self.addInputDoubleSpinBox()
+
+        self.addMainWidget(QLabel("+"))
+
+        # self.addOutputLabel()
 
 
     def sendData(self):
@@ -21,12 +24,12 @@ class Content(QDMNodeContentWidget):
 class GraphicsNode(QDMGraphicsNode):
     def initSizes(self):
         super().initSizes()
-        self.setShownSize(120, 83)   # 1IN =61  2In =83  3IN =105  4IN =127  5IN =149  6IN =171  7IN =193  8IN =215
-        self.setHiddenSize(120, 49)  # 1OUT=27  2OUT=49  3OUT=71   4OUT=93   5OUT=115  6OUT=137  7OUT=159  8OUT=181
+        self.setShownSize(220, 91)   # 1IN =65  2In =91  3IN =117  4IN =143  5IN =169  6IN =195  7IN =221  8IN =247
+        self.setHiddenSize(220, 57)  # 1OUT=31  2OUT=57  3OUT=83   4OUT=109   5OUT=135  6OUT=161  7OUT=187  8OUT=213
 
 
 class Node_TestMultipleInAndOutputs(Abstract_Node):
-    def __init__(self, scene: 'Scene', title: str = "Test In/Outputs", inputs: list = [VAR_TYPE_NOT_DEFINED], outputs: list = [VAR_TYPE_NOT_DEFINED, VAR_TYPE_NOT_DEFINED, VAR_TYPE_NOT_DEFINED, VAR_TYPE_NOT_DEFINED, VAR_TYPE_NOT_DEFINED, VAR_TYPE_NOT_DEFINED, VAR_TYPE_NOT_DEFINED, VAR_TYPE_NOT_DEFINED]):
+    def __init__(self, scene: 'Scene', title: str = "Test In/Outputs", inputs: list = [VAR_TYPE_FLOAT, VAR_TYPE_FLOAT], outputs: list = [VAR_TYPE_FLOAT]):
         super().__init__(scene, title, inputs, outputs)
 
     def initInnerClasses(self):
@@ -36,5 +39,9 @@ class Node_TestMultipleInAndOutputs(Abstract_Node):
     def receiveData(self, data, inputSocketIndex):
         super().receiveData(data, inputSocketIndex)
 
-        if self.inputValues[inputSocketIndex] is not None:
-            self.content.sendData()
+        if inputSocketIndex == 0 and self.inputValues[0] is not None:
+            self.content.spinBox1.setValue(data)
+            self.sendDataFromSocket(self.content.spinBox1.value() + self.content.spinBox2.value())
+        if inputSocketIndex == 1 and self.inputValues[0] is not None:
+            self.content.spinBox2.setValue(data)
+            self.sendDataFromSocket(self.content.spinBox1.value() + self.content.spinBox2.value())

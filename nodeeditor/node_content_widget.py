@@ -8,7 +8,7 @@ from PyQt5.QtGui import QColor
 
 from nodeeditor.node_serializable import Serializable
 from PyQt5.QtWidgets import QWidget, QLabel, QVBoxLayout, QTextEdit, QDoubleSpinBox, QSpinBox, QLineEdit, QCheckBox, \
-    QRadioButton, QDial, QSlider, QLayout, QHBoxLayout, QAbstractSpinBox
+    QRadioButton, QDial, QSlider, QLayout, QHBoxLayout, QAbstractSpinBox, QSizePolicy
 
 from nodeeditor.utils_no_qt import dumpException
 from nodeeditor.var_type_conf import *
@@ -43,12 +43,15 @@ class QDMNodeContentWidget(QWidget, Serializable):
     def initLayouts(self):
         self.inputLayout = QVBoxLayout()
         self.inputLayout.setContentsMargins(0, 0, 0, 0)
-        self.inputLayout.addSpacing(1)
         self.mainLayout = QVBoxLayout()
         self.mainLayout.setContentsMargins(0, 0, 0, 0)
         self.outputLayout = QVBoxLayout()
         self.outputLayout.setContentsMargins(0, 0, 0, 0)
-        self.outputLayout.addSpacing(1)
+
+        self.inputLayoutWidget = QWidget()
+        self.inputLayoutWidget.setLayout(self.inputLayout)
+        self.outputLayoutWidget = QWidget()
+        self.outputLayoutWidget.setLayout(self.outputLayout)
 
     def initUI(self):
         """Sets up layouts and widgets to be rendered in :py:class:`~nodeeditor.node_graphics_node.QDMGraphicsNode` class.
@@ -64,13 +67,18 @@ class QDMNodeContentWidget(QWidget, Serializable):
 
             layout = QHBoxLayout()
             layout.setContentsMargins(0, 0, 0, 0)
-            layout.addLayout(self.inputLayout)
+            if self.inputLayout.count() > 0: layout.addWidget(self.inputLayoutWidget)
             layout.addLayout(self.mainLayout)
-            layout.addLayout(self.outputLayout)
+            if self.outputLayout.count() > 0: layout.addWidget(self.outputLayoutWidget)
             self.setLayout(layout)
             self.totalMinimumWidth = self.layout().totalMinimumSize().width()
             self.totalMinimumHeight = self.layout().totalMinimumSize().height()
 
+    def setInputLayoutWidth(self, width: int = 50):
+        self.inputLayoutWidget.setFixedWidth(width)
+
+    def setOutputLayoutWidth(self, width: int = 50):
+        self.outputLayoutWidget.setFixedWidth(width)
 
     def setEditingFlag(self, value:bool):
         """
@@ -112,40 +120,58 @@ class QDMNodeContentWidget(QWidget, Serializable):
         return layout
 
     def addInputWidget(self, widget: QWidget = None) -> QWidget:
-        widget.setFixedHeight(16)
+        widget.setFixedHeight(20)
         self.inputLayout.addWidget(widget)
         self.socketInputPosition = LEFT_TOP
         return widget
 
     def addInputLabel(self, text: str = "") -> QLabel:
-        return self.addInputWidget(QLabel(text))
+        widget = QLabel(text)
+        return self.addInputDescriptionLabel(widget)
 
-    def addInputLineEdit(self, text: str = "", readOnly: bool = False) -> QLineEdit:
+    def addInputLineEdit(self, text: str = "", readOnly: bool = False, descriptionText: str = "", descriptionTextPositionLeft: bool = True) -> QLineEdit:
         widget = QLineEdit(text)
         widget.setReadOnly(readOnly)
-        return self.addInputWidget(widget)
+        return self.addInputDescriptionLabel(widget, descriptionText, descriptionTextPositionLeft)
 
-    def addInputSpinBox(self, value: int = 0, minValue: int = 0, maxValue: int = 99, readOnly: bool = False) -> QSpinBox:
+
+    def addInputSpinBox(self, value: int = 0, minValue: int = 0, maxValue: int = 99, readOnly: bool = False, descriptionText: str = "", descriptionTextPositionLeft: bool = True) -> QSpinBox:
         widget = QSpinBox()
         widget.setRange(minValue, maxValue)
         widget.setValue(value)
         widget.setButtonSymbols(QAbstractSpinBox.NoButtons)
         widget.setReadOnly(readOnly)
-        return self.addInputWidget(widget)
+        return self.addInputDescriptionLabel(widget, descriptionText, descriptionTextPositionLeft)
 
-    def addInputDoubleSpinBox(self, value: float = 0, minValue: float = 0, maxValue: float = 99, decimals: int = 2, readOnly: bool = False) -> QDoubleSpinBox:
+    def addInputDoubleSpinBox(self, value: float = 0, minValue: float = 0, maxValue: float = 99, decimals: int = 2, readOnly: bool = False, descriptionText: str = "", descriptionTextPositionLeft: bool = True) -> QDoubleSpinBox:
         widget = QDoubleSpinBox()
         widget.setRange(minValue, maxValue)
         widget.setValue(value)
         widget.setDecimals(decimals)
         widget.setButtonSymbols(QAbstractSpinBox.NoButtons)
         widget.setReadOnly(readOnly)
-        return self.addInputWidget(widget)
+        return self.addInputDescriptionLabel(widget, descriptionText, descriptionTextPositionLeft)
 
-    def addInputCheckBox(self, text: str = "", checked: bool = False, checkable: bool = True) -> QCheckBox:
+    def addInputCheckBox(self, text: str = "", checked: bool = False, checkable: bool = True, descriptionText: str = "", descriptionTextPositionLeft: bool = True) -> QCheckBox:
         widget = QCheckBox(text)
         widget.setChecked(checked)
         widget.setEnabled(checkable)
+        return self.addInputDescriptionLabel(widget, descriptionText, descriptionTextPositionLeft)
+
+    def addInputDescriptionLabel(self, widget: QWidget, descriptionText: str = "", descriptionTextPositionLeft: bool = True):
+        widget.setFixedHeight(20)
+        widget.setSizePolicy(QSizePolicy.MinimumExpanding, QSizePolicy.Fixed)
+        if descriptionText != "":
+            layout = QHBoxLayout()
+            label = QLabel(descriptionText)
+            label.setFixedHeight(20)
+            if descriptionTextPositionLeft:
+                layout.addWidget(label)
+            layout.addWidget(widget)
+            if not descriptionTextPositionLeft:
+                layout.addWidget(label)
+            self.addInputLayout(layout)
+            return widget
         return self.addInputWidget(widget)
 
     def addMainLayout(self, layout: QLayout = None) -> QLayout:
@@ -162,13 +188,63 @@ class QDMNodeContentWidget(QWidget, Serializable):
         return layout
 
     def addOutputWidget(self, widget: QWidget = None) -> QWidget:
-        widget.setFixedHeight(16)
+        widget.setFixedHeight(20)
         if hasattr(widget, "alignment"):
             widget.setAlignment(Qt.AlignVCenter | Qt.AlignRight)
 
         self.outputLayout.addWidget(widget)
         self.socketOutputPosition = RIGHT_TOP
         return widget
+
+    def addOutputLabel(self, text: str = "") -> QLabel:
+        widget = QLabel(text)
+        return self.addOutputDescriptionLabel(widget)
+
+    def addOutputLineEdit(self, text: str = "", readOnly: bool = False, descriptionText: str = "", descriptionTextPositionLeft: bool = False) -> QLineEdit:
+        widget = QLineEdit(text)
+        widget.setReadOnly(readOnly)
+        return self.addOutputDescriptionLabel(widget, descriptionText, descriptionTextPositionLeft)
+
+
+    def addOutputSpinBox(self, value: int = 0, minValue: int = 0, maxValue: int = 99, readOnly: bool = False, descriptionText: str = "", descriptionTextPositionLeft: bool = False) -> QSpinBox:
+        widget = QSpinBox()
+        widget.setRange(minValue, maxValue)
+        widget.setValue(value)
+        widget.setButtonSymbols(QAbstractSpinBox.NoButtons)
+        widget.setReadOnly(readOnly)
+        return self.addOutputDescriptionLabel(widget, descriptionText, descriptionTextPositionLeft)
+
+    def addOutputDoubleSpinBox(self, value: float = 0, minValue: float = 0, maxValue: float = 99, decimals: int = 2, readOnly: bool = False, descriptionText: str = "", descriptionTextPositionLeft: bool = False) -> QDoubleSpinBox:
+        widget = QDoubleSpinBox()
+        widget.setRange(minValue, maxValue)
+        widget.setValue(value)
+        widget.setDecimals(decimals)
+        widget.setButtonSymbols(QAbstractSpinBox.NoButtons)
+        widget.setReadOnly(readOnly)
+        return self.addOutputDescriptionLabel(widget, descriptionText, descriptionTextPositionLeft)
+
+    def addOutputCheckBox(self, text: str = "", checked: bool = False, checkable: bool = True, descriptionText: str = "", descriptionTextPositionLeft: bool = False) -> QCheckBox:
+        widget = QCheckBox(text)
+        widget.setChecked(checked)
+        widget.setEnabled(checkable)
+        return self.addOutputDescriptionLabel(widget, descriptionText, descriptionTextPositionLeft)
+
+    def addOutputDescriptionLabel(self, widget: QWidget, descriptionText: str = "", descriptionTextPositionLeft: bool = False):
+        widget.setFixedHeight(20)
+        widget.setSizePolicy(QSizePolicy.MinimumExpanding, QSizePolicy.Fixed)
+        if descriptionText != "":
+            layout = QHBoxLayout()
+            label = QLabel(descriptionText)
+            label.setFixedHeight(20)
+            label.setAlignment(Qt.AlignVCenter | Qt.AlignRight)
+            if descriptionTextPositionLeft:
+                layout.addWidget(label)
+            layout.addWidget(widget)
+            if not descriptionTextPositionLeft:
+                layout.addWidget(label)
+            self.addOutputLayout(layout)
+            return widget
+        return self.addOutputWidget(widget)
 
     def saveLayout(self, layout):
         if not layout:
