@@ -16,7 +16,6 @@ class Content(QDMNodeContentWidget):
 
         # self.addOutputLabel()
 
-
     def sendData(self):
         self.node.sendDataFromSocket("DATA")
 
