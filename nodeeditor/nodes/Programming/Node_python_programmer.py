@@ -2,7 +2,7 @@ from io import StringIO
 from contextlib import redirect_stdout
 
 from PyQt5.QtCore import QRegExp
-from PyQt5.QtGui import QTextDocument, QSyntaxHighlighter, QFont, QTextCharFormat
+from PyQt5.QtGui import QTextDocument, QSyntaxHighlighter, QFont, QTextCharFormat, QColor
 
 from PyQt5.QtWidgets import QLabel, QTextEdit, QVBoxLayout
 from nodeeditor.Abstract_Node import Abstract_Node
