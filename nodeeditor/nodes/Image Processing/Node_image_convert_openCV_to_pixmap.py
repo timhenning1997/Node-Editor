@@ -1,3 +1,7 @@
+from nodeeditor.utils import checkForRequiredModules
+if not checkForRequiredModules("pathlib", "opencv-python", "matplotlib", "numpy"):
+    raise ImportError
+
 import os
 from collections import OrderedDict
 from pathlib import Path

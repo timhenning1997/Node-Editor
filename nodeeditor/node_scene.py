@@ -210,6 +210,19 @@ class Scene(Serializable):
         if not silent:
             self.onItemsDeselected()
 
+    def doSelectAllItems(self, silent: bool=False) -> None:
+        """
+        Select everything in scene
+
+        :param silent: If ``True`` scene's onItemsDeselected won't be called
+        :type silent: ``bool``
+        """
+        for item in self.grScene.items():
+            if hasattr(item, 'node'):
+                item.setSelected(True)
+        if not silent:
+            self.onItemSelected
+
     # our helper listener functions
     def addHasBeenModifiedListener(self, callback: 'function'):
         """

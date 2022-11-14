@@ -1,10 +1,14 @@
+from nodeeditor.utils import checkForRequiredModules
+if not checkForRequiredModules("pathlib", "opencv-python", "uuid", "numpy"):
+    raise ImportError
+
 import os
 import uuid
 from collections import OrderedDict
 from pathlib import Path
-
 import cv2
 import numpy as np
+
 from PyQt5.QtCore import Qt, pyqtSignal
 from PyQt5.QtGui import QPixmap, QResizeEvent, QMouseEvent, QImage
 from PyQt5.QtWidgets import QHBoxLayout, QDial, QPushButton, QLabel, QSizePolicy, QFileDialog, QVBoxLayout

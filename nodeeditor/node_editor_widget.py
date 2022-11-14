@@ -199,7 +199,7 @@ class NodeEditorWidget(QWidget):
         for d in [name for name in os.listdir(path) if os.path.isdir(os.path.join(path, name))]:
             allFiles = []
             for path2, subdirs, files in os.walk(path + "/" + d):
-                allFiles += [f for f in files if os.path.splitext(f)[1] == ".py"]
+                allFiles += [f for f in files if os.path.splitext(f)[1] in [".py", ".json"]]
             if allFiles:
                 tempMenu = QMenu(d, menu)
                 menu3 = menu.addMenu(tempMenu)
@@ -309,7 +309,11 @@ class NodeEditorWidget(QWidget):
         context_menu = self.initNodesContextMenu()
         action = context_menu.exec_(self.mapToGlobal(event.pos()))
         if action and action.property("fileType") == "py" and action.property("path") and action.property("fileName"):
-            new_node = self.getNodeClassFromPath(action.property("path"), action.property("fileName"))(self.scene)
+            new_node = self.getNodeClassFromPath(action.property("path"), action.property("fileName"))
+            if new_node is None:
+                print("New node class is None: node_editor_widget | handleNewNodeContextMenu")
+                return None
+            new_node = new_node(self.scene)
             scene_pos = self.scene.getView().mapToScene(event.pos())
             new_node.setPos(scene_pos.x(), scene_pos.y())
             new_node._path = action.property("path")
@@ -362,6 +366,8 @@ class NodeEditorWidget(QWidget):
                 module = __import__(path.replace(".", "").lstrip("/").replace("/", ".").replace("\\", ".") + "." + fileName, fromlist=[path.replace("/", ".")])
                 node_class = getattr(module, noteClass)
                 return node_class
+        except ImportError:
+            print("ImportError")
         except Exception as e:
             dumpException(e)
         return None

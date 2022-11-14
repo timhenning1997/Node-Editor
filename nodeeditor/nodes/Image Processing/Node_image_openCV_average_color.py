@@ -1,3 +1,7 @@
+from nodeeditor.utils import checkForRequiredModules
+if not checkForRequiredModules("opencv-python", "numpy"):
+    raise ImportError
+
 import cv2
 import numpy as np
 

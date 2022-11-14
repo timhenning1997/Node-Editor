@@ -4,9 +4,9 @@ A module containing the Main Window class
 """
 import os, json
 from PyQt5.QtCore import QSize, QSettings, QPoint, Qt
-from PyQt5.QtGui import QColor, QPaintEvent, QPainter, QPen
+from PyQt5.QtGui import QColor, QPaintEvent, QPainter, QPen, QKeySequence
 from PyQt5.QtWidgets import QMainWindow, QLabel, QAction, QMessageBox, QFileDialog, QApplication, QGraphicsProxyWidget, \
-    QMenu, QColorDialog
+    QMenu, QColorDialog, QShortcut
 
 from nodeeditor.appearance_color_widget import AppearanceColorWindow
 from nodeeditor.node_edge import Edge
@@ -60,6 +60,7 @@ class NodeEditorWindow(QMainWindow):
         """Set up this ``QMainWindow``. Create :class:`~nodeeditor.node_editor_widget.NodeEditorWidget`, Actions and Menus"""
         self.createActions()
         self.createMenus()
+        self.createShortcuts()
 
         # create node editor widget
         self.nodeeditor = self.__class__.NodeEditorWidget_class(self)
@@ -76,6 +77,10 @@ class NodeEditorWindow(QMainWindow):
     def sizeHint(self):
         return QSize(800, 600)
 
+    def createShortcuts(self):
+        self.selAllSc = QShortcut(QKeySequence('Ctrl+A'), self)
+        self.selAllSc.activated.connect(self.onSelectAll)
+
     def createStatusBar(self):
         """Create Status bar and connect to `Graphics View` scenePosChanged event"""
         self.statusBar().showMessage("")
@@ -90,7 +95,7 @@ class NodeEditorWindow(QMainWindow):
         self.actOpen = QAction('&Open', self, shortcut='Ctrl+O', statusTip="Open file", triggered=self.onFileOpen)
         self.actSave = QAction('&Save', self, shortcut='Ctrl+S', statusTip="Save file", triggered=self.onFileSave)
         self.actSaveAs = QAction('Save &As...', self, shortcut='Ctrl+Shift+S', statusTip="Save file as...", triggered=self.onFileSaveAs)
-        self.actSaveAsNodeGroup = QAction('Save As Node &Group', self, shortcut='Ctrl+Shift+G', statusTip="Save selected nodes as node group", triggered=self.onFileSaveAsNodeGroup)
+        self.actSaveAsNodeGroup = QAction('Save As Node &Group', self, shortcut='Ctrl+Shift+G', statusTip="Save all nodes as node group", triggered=self.onFileSaveAsNodeGroup)
         self.actExit = QAction('E&xit', self, shortcut='Ctrl+Q', statusTip="Exit application", triggered=self.close)
 
         self.actUndo = QAction('&Undo', self, shortcut='Ctrl+Z', statusTip="Undo last operation", triggered=self.onEditUndo)
@@ -315,6 +320,7 @@ class NodeEditorWindow(QMainWindow):
             fname, filter = QFileDialog.getSaveFileName(self, 'Save selected nodes as node group', path, "NodeGroup (*.json)", "", QFileDialog.DontUseNativeDialog)
             if fname == '': return False
 
+            fname = fname.split(".")[0] + ".json"
             current_nodeeditor.fileSave(fname, asNodeGroup=True)
             self.statusBar().showMessage("Successfully saved nodeGroup as %s" % fname, 5000)
 
@@ -467,6 +473,10 @@ class NodeEditorWindow(QMainWindow):
         else:
             self.nodeeditor.scene.grScene.isSnappingToGridSquares = False
         self.nodeeditor.scene.grScene.isSnappingToGrid = False
+
+    def onSelectAll(self):
+        if self.getCurrentNodeEditorWidget():
+            self.getCurrentNodeEditorWidget().scene.doSelectAllItems()
 
 
     def changeEdgeVisibility(self, value: bool):

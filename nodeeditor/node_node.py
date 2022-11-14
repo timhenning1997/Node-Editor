@@ -662,6 +662,7 @@ class Node(Serializable):
             ('grnode_show_scale_icon', self.grNode.scale_item.isVisible()),
             ('grnode_show_rotation_icon', self.grNode.rotate_item.isVisible()),
             ('grnode_show_resize_icon', self.grNode.resize_item.isVisible()),
+            ('hide_item_visibility', self.grNode.hide_item.isVisible()),
             ('inputs', inputs),
             ('outputs', outputs),
             ('content', ser_content),
@@ -691,6 +692,7 @@ class Node(Serializable):
             self.grNode.showScaleRotResize(data['grnode_show_scale_icon'], "SCALE")
             self.grNode.showScaleRotResize(data['grnode_show_rotation_icon'], "ROTATION")
             self.grNode.showScaleRotResize(data['grnode_show_resize_icon'], "RESIZE")
+            self.grNode.showHideIcon(data['hide_item_visibility'])
 
             data['inputs'].sort(key=lambda socket: socket['index'] + socket['position'] * 10000 )
             data['outputs'].sort(key=lambda socket: socket['index'] + socket['position'] * 10000 )

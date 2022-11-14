@@ -1,9 +1,12 @@
-from collections import OrderedDict
+from nodeeditor.utils import checkForRequiredModules
+if not checkForRequiredModules("opencv-python", "numpy"):
+    raise ImportError
 
+from collections import OrderedDict
 import cv2
 import numpy as np
-from PyQt5.QtCore import Qt
 
+from PyQt5.QtCore import Qt
 from PyQt5.QtWidgets import QLabel, QGridLayout, QSlider
 from nodeeditor.Abstract_Node import Abstract_Node
 from nodeeditor.color_button import ColorButton

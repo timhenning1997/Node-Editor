@@ -33,7 +33,7 @@ class Content(QDMNodeContentWidget):
         hLayout = QHBoxLayout()
         hLayout.addWidget(self.loadImageButton)
 
-        layout = QVBoxLayout()
+        layout = QHBoxLayout()
         layout.addLayout(hLayout)
         layout.addWidget(self.label)
         layout.setContentsMargins(0, 0, 0, 0)
@@ -57,17 +57,16 @@ class Content(QDMNodeContentWidget):
                 self.node.grNode.setHiddenSize(size.width() + 45, size.height() + 45)
                 self.label.setPixmap(self.pixmap.scaled(self.label.size(), Qt.KeepAspectRatio, Qt.SmoothTransformation))
                 self.node.grNode.changeHiddenStatus("hidden")
+                self.label.show()
             except Exception as e: dumpException(e)
 
     def showNode(self):
         super().showNode()
         self.loadImageButton.show()
-        self.label.hide()
 
     def hideNode(self):
         super().hideNode()
         self.loadImageButton.hide()
-        self.label.show()
 
     def resizeEvent(self, event: QResizeEvent):
         self.label.setPixmap(self.pixmap.scaled(self.label.size(), Qt.KeepAspectRatio, Qt.SmoothTransformation))
@@ -75,11 +74,21 @@ class Content(QDMNodeContentWidget):
     def serialize(self) -> OrderedDict:
         orderedDict = super().serialize()
         orderedDict["lastOpenedImageName"] = self.lastOpenedImage
+        orderedDict["grnode_show_scale_icon"] = self.node.grNode.scale_item.isVisible()
+        orderedDict["grnode_show_rotation_icon"] = self.node.grNode.rotate_item.isVisible()
+        orderedDict["grnode_show_resize_icon"] = self.node.grNode.resize_item.isVisible()
         return orderedDict
 
     def deserialize(self, data: dict, hashmap: dict = {}, restore_id: bool = True) -> bool:
         super().deserialize(data, hashmap, restore_id)
+        width = self.node.grNode.hidden_width
+        height = self.node.grNode.hidden_height
         self.openImage(data["lastOpenedImageName"])
+        self.node.grNode.setHiddenSize(width, height)
+        self.node.grNode.changeContendSize()
+        self.node.grNode.showScaleRotResize(data['grnode_show_scale_icon'], "SCALE")
+        self.node.grNode.showScaleRotResize(data['grnode_show_rotation_icon'], "ROTATION")
+        self.node.grNode.showScaleRotResize(data['grnode_show_resize_icon'], "RESIZE")
         return True
 
 

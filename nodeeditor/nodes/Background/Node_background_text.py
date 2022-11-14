@@ -91,6 +91,8 @@ class GraphicsNode(QDMGraphicsNode):
         self.setHiddenSize(240, 240)
         self.setClosedSize(30, 30)
 
+        self.setShowAndHiddenSameSize = True
+
         self.hidden_edge_roundness = 10.0
         self.hidden_edge_padding = 10
         self.hidden_title_height = 0

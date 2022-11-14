@@ -1,3 +1,7 @@
+from nodeeditor.utils import checkForRequiredModules
+if not checkForRequiredModules("pathlib", "dxcam", "numpy"):
+    raise ImportError
+
 import contextlib
 import os
 from collections import OrderedDict
