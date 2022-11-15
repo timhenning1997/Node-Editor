@@ -1,3 +1,7 @@
+from nodeeditor.utils import checkForRequiredModules
+if not checkForRequiredModules("pycaw", "pysinewave"):
+    raise ImportError
+
 import time
 from pycaw.pycaw import AudioUtilities, ISimpleAudioVolume
 
@@ -112,7 +116,7 @@ class Content(QDMNodeContentWidget):
         if self.timeDurationSpinBox.value() == 0:
             self.timer.setInterval(1000000000)
         else:
-            self.timer.setInterval(self.timeDurationSpinBox.value() * 1000)
+            self.timer.setInterval(int(self.timeDurationSpinBox.value() * 1000))
         self.timeDurationLabel.setText("Time.: " + str(self.timeDurationSpinBox.value()) + "s")
 
     def removeContent(self):

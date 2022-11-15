@@ -1,4 +1,4 @@
-from PyQt5.QtWidgets import QHBoxLayout, QDial
+from PyQt5.QtWidgets import QHBoxLayout, QDial, QSpinBox, QVBoxLayout
 from nodeeditor.Abstract_Node import Abstract_Node
 from nodeeditor.node_content_widget import QDMNodeContentWidget
 from nodeeditor.node_graphics_node import QDMGraphicsNode
@@ -7,16 +7,42 @@ from nodeeditor.var_type_conf import *
 
 class Content(QDMNodeContentWidget):
     def initUI(self):
+        self.minSpinBox = QSpinBox()
+        self.minSpinBox.setRange(-100000, 100000)
+        self.minSpinBox.valueChanged.connect(self.setDialRange)
+        self.maxSpinBox = QSpinBox()
+        self.maxSpinBox.setRange(-100000, 100000)
+        self.maxSpinBox.setValue(99)
+        self.maxSpinBox.valueChanged.connect(self.setDialRange)
+
+        minMaxLayout = QHBoxLayout()
+        minMaxLayout.addWidget(self.minSpinBox)
+        minMaxLayout.addWidget(self.maxSpinBox)
+
         self.dial = QDial()
         self.dial.valueChanged.connect(self.sendData)
         self.dial.setNotchesVisible(True)
-        layout = QHBoxLayout()
+        layout = QVBoxLayout()
         layout.setContentsMargins(0, 0, 0, 0)
+        layout.addLayout(minMaxLayout)
         layout.addWidget(self.dial)
         self.setLayout(layout)
 
     def sendData(self):
         self.node.sendDataFromSocket(self.dial.value())
+
+    def setDialRange(self):
+        self.dial.setRange(self.minSpinBox.value(), self.maxSpinBox.value())
+
+    def showNode(self):
+        super().showNode()
+        self.minSpinBox.show()
+        self.maxSpinBox.show()
+
+    def hideNode(self):
+        super().hideNode()
+        self.minSpinBox.hide()
+        self.maxSpinBox.hide()
 
 
 class GraphicsNode(QDMGraphicsNode):
