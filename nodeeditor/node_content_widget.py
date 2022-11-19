@@ -3,12 +3,12 @@
 an overridden Text Widget, which can pass a notification to it's parent about being modified."""
 from collections import OrderedDict
 
-from PyQt5.QtCore import Qt
-from PyQt5.QtGui import QColor
+from PyQt5.QtCore import Qt, QEvent
+from PyQt5.QtGui import QColor, QWheelEvent, QCloseEvent, QContextMenuEvent
 
 from nodeeditor.node_serializable import Serializable
 from PyQt5.QtWidgets import QWidget, QLabel, QVBoxLayout, QTextEdit, QDoubleSpinBox, QSpinBox, QLineEdit, QCheckBox, \
-    QRadioButton, QDial, QSlider, QLayout, QHBoxLayout, QAbstractSpinBox, QSizePolicy
+    QRadioButton, QDial, QSlider, QLayout, QHBoxLayout, QAbstractSpinBox, QSizePolicy, QComboBox, QListView
 
 from nodeeditor.utils_no_qt import dumpException
 from nodeeditor.var_type_conf import *
@@ -372,3 +372,30 @@ class QDMTextEdit(QTextEdit):
         """
         self.parentWidget().setEditingFlag(False)
         super().focusOutEvent(event)
+
+
+class ListView(QListView):
+    def __init__(self, parent=None):
+        super(QListView, self).__init__(parent)
+
+    def wheelEvent(self, event: QWheelEvent):
+        super().wheelEvent(event)
+        event.accept()
+
+class QDMComboBox(QComboBox):
+
+    def __init__(self):
+        super().__init__()
+
+        listview = ListView()
+        self.setView(listview)
+    def showPopup(self):
+        self.parentWidget().setEditingFlag(True)
+        super().showPopup()
+
+    def hidePopup(self):
+        try:
+            self.parentWidget().setEditingFlag(False)
+            super().hidePopup()
+        except Exception as e:
+            pass

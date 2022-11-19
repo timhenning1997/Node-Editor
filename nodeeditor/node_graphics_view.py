@@ -393,7 +393,6 @@ class QDMGraphicsView(QGraphicsView):
 
         super().mouseReleaseEvent(event)
 
-
     def mouseMoveEvent(self, event: QMouseEvent):
         """Overriden Qt's ``mouseMoveEvent`` handling Scene/View logic"""
         scenepos = self.mapToScene(event.pos())
@@ -554,6 +553,10 @@ class QDMGraphicsView(QGraphicsView):
     def wheelEvent(self, event: QWheelEvent):
         """overridden Qt's ``wheelEvent``. This handles zooming"""
         # calculate our zoom Factor
+        if self.editingFlag:
+            super().wheelEvent(event)
+            return
+
         zoomOutFactor = 1 / self.zoomInFactor
 
         # calculate zoom

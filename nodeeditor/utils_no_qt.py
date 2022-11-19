@@ -42,3 +42,34 @@ def clamp(n, smallest, largest):
 pp = PrettyPrinter(indent=4).pprint
 installed_packages = sys.modules.keys()
 
+def isFloat(s: str):
+    try:
+        float(s)
+    except ValueError:
+        return False
+    return True
+
+
+def isInt(s: str):
+    try:
+        int(s)
+    except ValueError:
+        return False
+    return True
+
+
+def returnFloat(s: str):
+    try:
+        float(s)
+    except ValueError:
+        return -1
+    return float(s)
+
+
+def returnInt(s: str):
+    try:
+        int(s)
+    except ValueError:
+        return -1
+    return int(s)
+
