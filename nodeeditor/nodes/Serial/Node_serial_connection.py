@@ -626,6 +626,25 @@ class SerialThread(QRunnable):
             self.serialParameters.maxSignalRate = maxSignalRate
 
 
+class PortCombobox(QDMComboBox):
+    def __init__(self):
+        super().__init__()
+        for port in serial.tools.list_ports.comports():
+            self.addItem(port.name)
+        self.lastText = self.currentText()
+        self.activated.connect(self.handleActivated)
+        self.adjustSize()
+
+    def showPopup(self):
+        self.clear()
+        for port in serial.tools.list_ports.comports():
+            self.addItem(port.name)
+        self.setCurrentText(self.lastText)
+        super().showPopup()
+
+    def handleActivated(self, index):
+        self.lastText = self.itemText(index)
+
 class Content(QDMNodeContentWidget):
     sendSerialWriteSignal = pyqtSignal(str, object)
     killSerialConnectionSignal = pyqtSignal(str)
@@ -646,11 +665,9 @@ class Content(QDMNodeContentWidget):
         baudrateLabel = QLabel("Baud rate")
         maxSignalRateLabel = QLabel("Max signal rate [Hz]")
 
-        self.portCombobox = QDMComboBox()
+        self.portCombobox = PortCombobox()
         self.portCombobox.setEditable(True)
         self.portCombobox.setInsertPolicy(QComboBox.InsertPolicy.InsertAlphabetically)
-        for port in serial.tools.list_ports.comports():
-            self.portCombobox.addItem(port.name)
 
         self.baudrateCombobox = QDMComboBox()
         self.baudrateCombobox.setEditable(True)
