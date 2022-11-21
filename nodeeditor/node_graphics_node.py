@@ -661,22 +661,29 @@ class HideIconItem(QGraphicsItem):
         changeAct.setProperty("actionType", "edit")
 
         context_menu.addSeparator()
-        showEvalIconAct = context_menu.addAction("Show eval icon")
+        show_menu = context_menu.addMenu("Show ...")
+        hide_menu = context_menu.addMenu("Hide ...")
+
+
+        showEvalIconAct = show_menu.addAction("Show eval icon")
         showEvalIconAct.setProperty("actionType", "show eval")
-        hideEvalIconAct = context_menu.addAction("Hide eval icon")
+        hideEvalIconAct = hide_menu.addAction("Hide eval icon")
         hideEvalIconAct.setProperty("actionType", "hide eval")
 
-        context_menu.addSeparator()
-        showSocketsAct = context_menu.addAction("Show sockets")
+        showSocketsAct = show_menu.addAction("Show sockets")
         showSocketsAct.setProperty("actionType", "show sockets")
-        hideSocketsAct = context_menu.addAction("Hide sockets")
+        hideSocketsAct = hide_menu.addAction("Hide sockets")
         hideSocketsAct.setProperty("actionType", "hide sockets")
 
-        context_menu.addSeparator()
-        showScaleRotResizeAct = context_menu.addAction("Show scale rot resize")
+        showScaleRotResizeAct = show_menu.addAction("Show scale rot resize")
         showScaleRotResizeAct.setProperty("actionType", "show scale rot resize")
-        hideScaleRotResizeAct = context_menu.addAction("Hide scale rot resize")
+        hideScaleRotResizeAct = hide_menu.addAction("Hide scale rot resize")
         hideScaleRotResizeAct.setProperty("actionType", "hide scale rot resize")
+
+        showEvalAnimAct = show_menu.addAction("Show eval animation")
+        showEvalAnimAct.setProperty("actionType", "show animation")
+        hideEvalAnimAct = hide_menu.addAction("Hide eval animation")
+        hideEvalAnimAct.setProperty("actionType", "hide animation")
 
         return context_menu
 
@@ -757,6 +764,10 @@ class HideIconItem(QGraphicsItem):
                 self.grNode.showScaleRotResize(True, toAllSelected=True)
             elif action.property("actionType") == "hide scale rot resize":
                 self.grNode.showScaleRotResize(False, toAllSelected=True)
+            elif action.property("actionType") == "show animation":
+                self.grNode.animation.setEnable(True)
+            elif action.property("actionType") == "hide animation":
+                self.grNode.animation.setEnable(False)
 
     def paint(self, painter, QStyleOptionGraphicsItem, widget=None):
         if self.grNode.node.locked:

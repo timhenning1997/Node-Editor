@@ -6,7 +6,7 @@ class PropertyAnimator(QObject):
     update = pyqtSignal(float)
     stop = pyqtSignal(float)
 
-    def __init__(self, startValue: float = 0.0, endValue: float = 100.0, duration: float = 1000.0, interval: float = 100.0):
+    def __init__(self, startValue: float = 0.0, endValue: float = 100.0, duration: float = 1000.0, interval: int = 100):
         super().__init__()
         self._start_value = startValue
         self._end_value = endValue
@@ -16,8 +16,15 @@ class PropertyAnimator(QObject):
         self._interval = interval
         self._animation_timer = QTimer()
         self._animation_timer.timeout.connect(self.updateAnimationFrame)
+        self._enable = True
 
     def updateAnimationFrame(self):
+        if not self._enable:
+            self._animation_timer.stop()
+            self._current_time = 0
+            self.stop.emit(self._end_value)
+            return
+
         self._current_time += self._interval
 
         if self._duration == 0:
@@ -33,6 +40,9 @@ class PropertyAnimator(QObject):
             self.stop.emit(self._value)
 
     def startAnimation(self, interval: int = -1):
+        if not self._enable:
+            return
+
         if interval != -1:
             self._interval = float(interval)
         self._current_time = 0.0
@@ -52,3 +62,12 @@ class PropertyAnimator(QObject):
 
     def setInterval(self, value: float):
         self._interval = value
+
+    def setEnable(self, b: bool = True):
+        self._enable = b
+
+    def isEnable(self):
+        if self._enable:
+            return True
+        else:
+            return False

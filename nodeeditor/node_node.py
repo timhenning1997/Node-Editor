@@ -666,6 +666,7 @@ class Node(Serializable):
             ('inputs', inputs),
             ('outputs', outputs),
             ('content', ser_content),
+            ('showaEvalAnimation', self.grNode.animation.isEnable())
         ])
 
     def deserialize(self, data: dict, hashmap: dict={}, restore_id: bool=True, *args, **kwargs) -> bool:
@@ -693,6 +694,7 @@ class Node(Serializable):
             self.grNode.showScaleRotResize(data['grnode_show_rotation_icon'], "ROTATION")
             self.grNode.showScaleRotResize(data['grnode_show_resize_icon'], "RESIZE")
             self.grNode.showHideIcon(data['hide_item_visibility'])
+            self.grNode.animation.setEnable(data['showaEvalAnimation'])
 
             data['inputs'].sort(key=lambda socket: socket['index'] + socket['position'] * 10000 )
             data['outputs'].sort(key=lambda socket: socket['index'] + socket['position'] * 10000 )

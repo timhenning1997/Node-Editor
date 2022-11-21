@@ -1,5 +1,6 @@
 import binascii
 import os
+from collections import OrderedDict
 
 import libscrc
 import numpy as np
@@ -24,8 +25,87 @@ from datetime import datetime
 from time import time, sleep
 
 
+class SerialParameters:
+    def __init__(self, port=None, baudrate=115200, bytesize=serial.EIGHTBITS, parity=serial.PARITY_NONE,
+                 stopbits=serial.STOPBITS_ONE, timeout=0.3, xonxoff=False, rtscts=False,
+                 write_timeout=1, dsrdtr=False, inter_byte_timeout=1, exclusive=None,
+                 local_echo=False, appendCR=False, appendLF=False):
+        self.port = port
+        self.baudrate = baudrate
+        self.bytesize = bytesize
+        self.parity = parity
+        self.stopbits = stopbits
+        self.timeout = timeout
+        self.xonxoff = xonxoff
+        self.rtscts = rtscts
+        self.write_timeout = write_timeout
+        self.dsrdtr = dsrdtr
+        self.inter_byte_timeout = inter_byte_timeout
+        self.exclusive = exclusive
+        self.readTextIndex = "read_line"
+        self.readBytes = 1
+        self.readUntil = ''
+        self.DTR = False
+        self.maxSignalRate = 5  # Hz
+        self.Kennbin = ""
+
+        self.local_echo = local_echo
+        self.appendCR = appendCR
+        self.appendLF = appendLF
+
+    def serialize(self) -> OrderedDict:
+        return OrderedDict([
+            ('port', self.port),
+            ('baudrate', self.baudrate),
+            ('bytesize', self.bytesize),
+            ('parity', self.parity),
+            ('stopbits', self.stopbits),
+            ('timeout', self.timeout),
+            ('xonxoff', self.xonxoff),
+            ('rtscts', self.rtscts),
+            ('write_timeout', self.write_timeout),
+            ('dsrdtr', self.dsrdtr),
+            ('inter_byte_timeout', self.inter_byte_timeout),
+            ('exclusive', self.exclusive),
+            ('readTextIndex', self.readTextIndex),
+            ('readBytes', self.readBytes),
+            ('readUntil', self.readUntil),
+            ('DTR', self.DTR),
+            ('maxSignalRate', self.maxSignalRate),
+            ('Kennbin', self.Kennbin),
+            ('local_echo', self.local_echo),
+            ('appendCR', self.appendCR),
+            ('appendLF', self.appendLF),
+        ])
+
+    def deserialize(self, data: dict) -> bool:
+        self.port = data["port"]
+        self.baudrate = data["baudrate"]
+        self.bytesize = data["bytesize"]
+        self.parity = data["parity"]
+        self.stopbits = data["stopbits"]
+        self.timeout = data["timeout"]
+        self.xonxoff = data["xonxoff"]
+        self.rtscts = data["rtscts"]
+        self.write_timeout = data["write_timeout"]
+        self.dsrdtr = data["dsrdtr"]
+        self.inter_byte_timeout = data["inter_byte_timeout"]
+        self.exclusive = data["exclusive"]
+        self.readTextIndex = data["readTextIndex"]
+        self.readBytes = data["readBytes"]
+        self.readUntil = data["readUntil"]
+        self.DTR = data["DTR"]
+        self.maxSignalRate = data["maxSignalRate"]
+        self.Kennbin = data["Kennbin"]
+
+        self.local_echo = data["local_echo"]
+        self.appendCR = data["appendCR"]
+        self.appendLF = data["appendLF"]
+        return True
+
+
 class SerialConnectWindow(QWidget):
-    def __init__(self, portName: str = "none", baudrate: str = "", maxSignalRate: int = 0):
+    def __init__(self, serialParam: SerialParameters):
         super().__init__()
 
         self.setWindowTitle("Port connection")
@@ -43,8 +123,8 @@ class SerialConnectWindow(QWidget):
         self.portCombobox.setInsertPolicy(QComboBox.InsertPolicy.InsertAlphabetically)
         for port in serial.tools.list_ports.comports():
             self.portCombobox.addItem(port.name)
-        if self.portCombobox.findText(portName) > -1:
-            self.portCombobox.setCurrentText(portName)
+        if self.portCombobox.findText(serialParam.port) > -1:
+            self.portCombobox.setCurrentText(serialParam.port)
 
         self.baudrateCombobox = QComboBox()
         self.baudrateCombobox.setEditable(True)
@@ -64,21 +144,21 @@ class SerialConnectWindow(QWidget):
         self.baudrateCombobox.addItem("500000")
         self.baudrateCombobox.addItem("1000000")
         self.baudrateCombobox.addItem("2000000")
-        if self.baudrateCombobox.findText(baudrate) > -1:
-            self.baudrateCombobox.setCurrentText(baudrate)
+        if self.baudrateCombobox.findText(str(serialParam.baudrate)) > -1:
+            self.baudrateCombobox.setCurrentText(str(serialParam.baudrate))
 
         self.dataBitsCombobox = QComboBox()
         self.dataBitsCombobox.addItem("5")
         self.dataBitsCombobox.addItem("6")
         self.dataBitsCombobox.addItem("7")
         self.dataBitsCombobox.addItem("8")
-        self.dataBitsCombobox.setCurrentText("8")
+        self.dataBitsCombobox.setCurrentText(str(serialParam.bytesize))
 
         self.stopBitsCombobox = QComboBox()
         self.stopBitsCombobox.addItem("1")
         self.stopBitsCombobox.addItem("1.5")
         self.stopBitsCombobox.addItem("2")
-        self.stopBitsCombobox.setCurrentText("1")
+        self.stopBitsCombobox.setCurrentText(str(serialParam.stopbits))
 
         self.parityCombobox = QComboBox()
         self.parityCombobox.addItem("none")
@@ -86,7 +166,7 @@ class SerialConnectWindow(QWidget):
         self.parityCombobox.addItem("odd")
         self.parityCombobox.addItem("mark")
         self.parityCombobox.addItem("space")
-        self.parityCombobox.setCurrentText("none")
+        self.parityCombobox.setCurrentText(serialParam.parity)
 
         self.flowControlCombobox = QComboBox()
         self.flowControlCombobox.addItem("none")
@@ -94,6 +174,12 @@ class SerialConnectWindow(QWidget):
         self.flowControlCombobox.addItem("rtscts")
         self.flowControlCombobox.addItem("dsrdtr")
         self.flowControlCombobox.setCurrentText("none")
+        if serialParam.xonxoff:
+            self.flowControlCombobox.setCurrentText("xonxoff")
+        if serialParam.rtscts:
+            self.flowControlCombobox.setCurrentText("rtscts")
+        if serialParam.dsrdtr:
+            self.flowControlCombobox.setCurrentText("dsrdtr")
 
         portConfigLayout = QFormLayout()
         portConfigLayout.addRow(portLabel, self.portCombobox)
@@ -118,9 +204,13 @@ class SerialConnectWindow(QWidget):
         appendButtonGroup.addButton(self.appendLFRB)
         appendButtonGroup.addButton(self.appendCRLFRB)
 
-        self.appendNothingRB.setChecked(True)
+        if not serialParam.appendCR and not serialParam.appendLF: self.appendNothingRB.setChecked(True)
+        if serialParam.appendCR and not serialParam.appendLF: self.appendCRRB.setChecked(True)
+        if not serialParam.appendCR and serialParam.appendLF: self.appendLFRB.setChecked(True)
+        if serialParam.appendCR and serialParam.appendLF: self.appendCRLFRB.setChecked(True)
 
         self.localEchoCB = QCheckBox("Local echo")
+        self.localEchoCB.setChecked(serialParam.local_echo)
 
         transmittedTextVLayout = QVBoxLayout()
         transmittedTextVLayout.addWidget(self.appendNothingRB)
@@ -152,7 +242,7 @@ class SerialConnectWindow(QWidget):
         self.timeoutCombobox.addItem("4")
         self.timeoutCombobox.addItem("5")
         self.timeoutCombobox.addItem("10")
-        self.timeoutCombobox.setCurrentText("0.3")
+        self.timeoutCombobox.setCurrentText(str(serialParam.timeout))
 
         self.readLinesRB = QRadioButton("Read line")
         self.readBytesRB = QRadioButton("Read bytes")
@@ -165,6 +255,11 @@ class SerialConnectWindow(QWidget):
         self.readLoggingRawRB.toggled.connect(self.changeReadTextAvailable)
         self.readBytesRB.toggled.connect(self.changeReadTextAvailable)
         self.readUntilRB.toggled.connect(self.changeReadTextAvailable)
+        if serialParam.readTextIndex == "read_lines": self.readLinesRB.setChecked(True)
+        if serialParam.readTextIndex == "read_WU_device": self.readWUDRB.setChecked(True)
+        if serialParam.readTextIndex == "logging_raw": self.readLoggingRawRB.setChecked(True)
+        if serialParam.readTextIndex == "read_bytes": self.readBytesRB.setChecked(True)
+        if serialParam.readTextIndex == "read_until": self.readUntilRB.setChecked(True)
 
         self.readBytesSpinBox = QSpinBox()
         self.readBytesSpinBox.setRange(1, 1000)
@@ -200,7 +295,7 @@ class SerialConnectWindow(QWidget):
 
         self.maxSignalRateSpinBox = QSpinBox()
         self.maxSignalRateSpinBox.setRange(1, 9999)
-        self.maxSignalRateSpinBox.setValue(maxSignalRate)
+        self.maxSignalRateSpinBox.setValue(serialParam.maxSignalRate)
 
         optionsLayout = QFormLayout()
         optionsLayout.addRow(maxSignalRateLabel, self.maxSignalRateSpinBox)
@@ -297,35 +392,6 @@ class SerialConnectWindow(QWidget):
         serialParam.maxSignalRate = self.maxSignalRateSpinBox.value()
 
         return serialParam
-
-
-class SerialParameters:
-    def __init__(self, port=None, baudrate=115200, bytesize=serial.EIGHTBITS, parity=serial.PARITY_NONE,
-                 stopbits=serial.STOPBITS_ONE, timeout=0.3, xonxoff=False, rtscts=False,
-                 write_timeout=1, dsrdtr=False, inter_byte_timeout=1, exclusive=None,
-                 local_echo=False, appendCR=False, appendLF=False):
-        self.port = port
-        self.baudrate = baudrate
-        self.bytesize = bytesize
-        self.parity = parity
-        self.stopbits = stopbits
-        self.timeout = timeout
-        self.xonxoff = xonxoff
-        self.rtscts = rtscts
-        self.write_timeout = write_timeout
-        self.dsrdtr = dsrdtr
-        self.inter_byte_timeout = inter_byte_timeout
-        self.exclusive = exclusive
-        self.readTextIndex = "read_line"
-        self.readBytes = 1
-        self.readUntil = ''
-        self.DTR = False
-        self.maxSignalRate = 5  # Hz
-        self.Kennbin = ""
-
-        self.local_echo = local_echo
-        self.appendCR = appendCR
-        self.appendLF = appendLF
 
 
 class SerialSignals(QObject):
@@ -668,6 +734,7 @@ class Content(QDMNodeContentWidget):
         self.portCombobox = PortCombobox()
         self.portCombobox.setEditable(True)
         self.portCombobox.setInsertPolicy(QComboBox.InsertPolicy.InsertAlphabetically)
+        self.portCombobox.currentTextChanged.connect(self.updateSerialParam)
 
         self.baudrateCombobox = QDMComboBox()
         self.baudrateCombobox.setEditable(True)
@@ -688,11 +755,13 @@ class Content(QDMNodeContentWidget):
         self.baudrateCombobox.addItem("1000000")
         self.baudrateCombobox.addItem("2000000")
         self.baudrateCombobox.setCurrentText(str(self.serialParam.baudrate))
+        self.baudrateCombobox.currentTextChanged.connect(self.updateSerialParam)
 
         self.maxSignalRateSpinBox = QSpinBox()
         self.maxSignalRateSpinBox.setRange(1, 9999)
         self.maxSignalRateSpinBox.setValue(self.serialParam.maxSignalRate)
         self.maxSignalRateSpinBox.valueChanged.connect(self.sendChangeMaxSignalRate)
+        self.maxSignalRateSpinBox.valueChanged.connect(self.updateSerialParam)
 
         self.connectButton = QPushButton("Disconnected")
         self.connectButton.setStyleSheet("background-color : red")
@@ -728,10 +797,14 @@ class Content(QDMNodeContentWidget):
     def sendData(self):
         self.node.sendDataFromSocket("DATA")
 
+    def updateSerialParam(self):
+        self.serialParam.port = self.portCombobox.currentText()
+        if isInt(self.baudrateCombobox.currentText()): self.serialParam.baudrate = int(
+            self.baudrateCombobox.currentText())
+        self.serialParam.maxSignalRate = self.maxSignalRateSpinBox.value()
+
     def openSerialConnectWindow(self):
-        self.serialConnectWindow = SerialConnectWindow(self.portCombobox.currentText(),
-                                                       self.baudrateCombobox.currentText(),
-                                                       self.maxSignalRateSpinBox.value())
+        self.serialConnectWindow = SerialConnectWindow(self.serialParam)
         self.serialConnectWindow.okButton.clicked.connect(self.okOptionWindow)
         self.serialConnectWindow.show()
 
@@ -811,6 +884,21 @@ class Content(QDMNodeContentWidget):
 
     def removeContent(self):
         self.disconnectSerialConnection()
+
+    def serialize(self) -> OrderedDict:
+        orderedDict = super().serialize()
+        orderedDict["serialParameters"] = self.serialParam.serialize()
+        return orderedDict
+
+    def deserialize(self, data: dict, hashmap: dict = {}, restore_id: bool = True) -> bool:
+        super().deserialize(data, hashmap, restore_id)
+        self.serialParam.deserialize(data["serialParameters"])
+        if self.portCombobox.findText(self.serialParam.port) > -1:
+            self.portCombobox.setCurrentText(self.serialParam.port)
+        if self.baudrateCombobox.findText(str(self.serialParam.baudrate)) > -1:
+            self.baudrateCombobox.setCurrentText(str(self.serialParam.baudrate))
+        self.maxSignalRateSpinBox.setValue(self.serialParam.maxSignalRate)
+        return True
 
 
 class GraphicsNode(QDMGraphicsNode):
