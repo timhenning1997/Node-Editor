@@ -15,7 +15,7 @@ def dumpException(e=None):
     # traceback.print_tb(e.__traceback__)
     traceback.print_exc()
 
-_path = os.path.abspath(os.getcwd() + "/nodeeditor")
+_path = os.path.abspath(os.getcwd() + "/../nodeeditor")
 def getStartNodeEditorDirectory():
     return _path
 

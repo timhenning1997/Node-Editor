@@ -275,9 +275,11 @@ class NodeEditorWidget(QWidget):
         # @ TODO properly make path out of this next function
         # getNodeEditorDirectory()
 
+        path = os.path.relpath(getStartNodeEditorDirectory() + "/nodes", getStartNodeEditorDirectory())
         # path = getStartNodeEditorDirectory() + "/nodes"
         # path = "../../nodeeditor/nodes"
-        path = "nodeeditor/nodes"
+        # path = "../nodeeditor/nodes"
+        # path = "nodeeditor/nodes"
 
         context_menu = self.recursiveDirSearch(path, self.context_menu, self.context_menu)
         self.secondRecursiveDirSearch(path, self.context_menu)
@@ -361,7 +363,6 @@ class NodeEditorWidget(QWidget):
             noteClasses = list(filter(r.match, keys))
             if noteClasses:
                 noteClass = noteClasses[0]
-
             if noteClass:
                 module = __import__(path.replace(".", "").lstrip("/").replace("/", ".").replace("\\", ".") + "." + fileName, fromlist=[path.replace("/", ".")])
                 node_class = getattr(module, noteClass)
