@@ -19,7 +19,7 @@ class Content(QDMNodeContentWidget):
         self.editorTextEdit.setStyleSheet("#editorTextEditObj {background-color: #111111; color: #eeeeee}")
         self.editorTextEdit.setTabStopDistance(20)
         self.editorTextEdit.setTextColor(QColor(200, 200, 200))
-        self.editorTextEdit.setPlainText("# comment\nincoming data == \"input\"\noutgoing data == \"self.sendData(...)\"")
+        self.editorTextEdit.setPlainText("# comment\n#incoming data == \"input\"\n#outgoing data == \"self.sendData(...)\"")
         self.highlight = PythonHighlighter(self.editorTextEdit.document())
 
         self.consoleLabel = QLabel("")
