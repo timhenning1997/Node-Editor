@@ -255,7 +255,7 @@ class SerialConnectWindow(QWidget):
         self.readLoggingRawRB.toggled.connect(self.changeReadTextAvailable)
         self.readBytesRB.toggled.connect(self.changeReadTextAvailable)
         self.readUntilRB.toggled.connect(self.changeReadTextAvailable)
-        if serialParam.readTextIndex == "read_lines": self.readLinesRB.setChecked(True)
+        if serialParam.readTextIndex == "read_line": self.readLinesRB.setChecked(True)
         if serialParam.readTextIndex == "read_WU_device": self.readWUDRB.setChecked(True)
         if serialParam.readTextIndex == "logging_raw": self.readLoggingRawRB.setChecked(True)
         if serialParam.readTextIndex == "read_bytes": self.readBytesRB.setChecked(True)
@@ -378,7 +378,7 @@ class SerialConnectWindow(QWidget):
         if isFloat(self.timeoutCombobox.currentText()):
             serialParam.timeout = returnFloat(self.timeoutCombobox.currentText())
         if self.readLinesRB.isChecked():
-            serialParam.readTextIndex = "read_lines"
+            serialParam.readTextIndex = "read_line"
         if self.readWUDRB.isChecked():
             serialParam.readTextIndex = "read_WU_device"
         if self.readLoggingRawRB.isChecked():
